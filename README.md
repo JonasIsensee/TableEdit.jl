@@ -2,6 +2,8 @@
 
 Edit tabular data in an external editor (e.g. `EDITOR`), similar to `git rebase -i`: dump a table to a delimited text file, then parse the edited file with validation and optional diff.
 
+![TableEdit.jl Demo](demo.gif)
+
 ## Install
 
 From the Julia REPL:
