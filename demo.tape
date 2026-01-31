@@ -6,27 +6,27 @@ Set FontSize 18
 Set Width 900
 Set Height 600
 Set Theme "Dracula"
-Set TypingSpeed 20ms
+Set TypingSpeed 30ms
 
 # Start Julia REPL - type fast
 Type "julia --project"
 Enter
-Sleep 3s
+Sleep 700ms
 
 # Load TableEdit - type fast
 Type "using TableEdit"
 Enter
-Sleep 1s
+Sleep 700ms
 
 # Create a sample table - type fast
 Type 'table = (id=[1,2,3], name=["Alice","Bob","Carol"], score=[85,92,78])'
 Enter
-Sleep 1s
+Sleep 700ms
 
-# Call edit_table - type fast
-Type "ok, result, errors = edit_table(table)"
+# Call edit_table - type fast (disable column alignment to avoid whitespace display issues)
+Type "ok, result, errors = edit_table(table; align_columns=false)"
 Enter
-Sleep 3s
+Sleep 2s
 
 # Now in nano editing the table - SLOW DOWN
 Set TypingSpeed 150ms
@@ -48,6 +48,8 @@ Ctrl+K
 Sleep 2s
 
 # Add new row for Dave RIGHT HERE (where Carol was)
+Enter
+Up 1
 Type "4"
 Sleep 300ms
 Tab
@@ -57,7 +59,7 @@ Sleep 300ms
 Tab
 Sleep 300ms
 Type "88"
-Sleep 2s
+Sleep 1s
 
 # Save and exit nano - back to fast
 Set TypingSpeed 20ms
@@ -66,7 +68,7 @@ Sleep 500ms
 Type "y"
 Sleep 500ms
 Enter
-Sleep 2s
+Sleep 1s
 
 # Back in REPL - show results
 Type "ok"
@@ -75,4 +77,4 @@ Sleep 1s
 
 Type "rows = result[2]"
 Enter
-Sleep 3s
+Sleep 2s
