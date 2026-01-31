@@ -49,63 +49,74 @@ Pkg.add(url="https://github.com/JonasIsensee/TableEdit.jl")
 
 ## Demo
 
-Run the interactive demo to see all features in action:
-
-```bash
-julia --project demo.jl
-```
-
-Or copy-paste this quick example:
+### Quick example: Interactive editing workflow
 
 ```julia
 using TableEdit
 
-# Create a sample table
-cols = ["id", "name", "email"]
-rows = [
-    (id = "1", name = "Alice", email = "alice@example.com"),
-    (id = "2", name = "Bob", email = "bob@example.com"),
-    (id = "3", name = "Carol", email = "carol@example.com"),
-]
-table = (cols, rows)
+# Start with a table (any Tables.jl compatible format)
+table = (id=[1,2,3], name=["Alice","Bob","Carol"], score=[85,92,78])
 
-# Write to buffer (with header comments)
-io = IOBuffer()
-write_table_text(
-    io,
-    table;
-    header_comment_lines = ["Edit the table below. Lines starting with # are ignored.", ""],
-)
-println(String(take!(io)))
-
-# Parse from string or file
-cols_parsed, rows_parsed, errs = parse_table_text(path_or_string)
-@assert isempty(errs)
-
-# Validation: required columns, unique keys, type checking
-ok, result, errs = finish_edit(
-    path;
-    required_columns = ["id", "name"],
-    key_columns = ["id"],  # must be unique
-    column_types = Dict("id" => Int),
-)
-
-# Diff mode: see what changed
-ok, diff, _ = finish_edit(
-    path;
-    original_table = orig,
-    key_columns = ["id"],
-    return_mode = :diff,  # or :changes_only
-)
-println("Added: ", length(diff.added))
-println("Modified: ", length(diff.modified))
-println("Removed: ", length(diff.removed))
-
-# Simulate editor interaction
-path_edit, finish_fn = edit_table(table; spawn_editor = false)
-write(path_edit, "id,name,email\n1,Alice,new@example.com\n")
-ok, result, errs = finish_fn()
+# Open in editor - this creates a formatted text file and opens $EDITOR
+edit_table(table)
 ```
+
+**What you see in your editor:**
+```
+# Empty fields can be left blank or use "". Lines starting with # are ignored.
+
+id	name	score
+---	----	-----
+1	Alice	85
+2	Bob	92
+3	Carol	78
+```
+
+**Make your edits:**
+```
+# Empty fields can be left blank or use "". Lines starting with # are ignored.
+
+id	name	score
+---	----	-----
+1	Alice	90      # Changed score from 85 to 90
+2	Bob	92
+3	Carol	78
+4	Dave	88      # Added new row
+# Removed Carol's row above, added Dave
+```
+
+**After saving and closing the editor:**
+```julia
+# Returns: (ok, result, errors)
+# ok = true
+# result = (["id","name","score"], [(id="1",name="Alice",score="90"), ...])
+```
+
+### Advanced: Validation and diff tracking
+
+```julia
+# Track changes with validation
+ok, diff, errs = edit_table(
+    original_table,
+    key_columns = ["id"],           # IDs must be unique
+    column_types = Dict("score" => Int),  # Score must be an integer
+    return_mode = :diff             # Get structured diff
+)
+
+# diff contains:
+#   diff.added     - new rows (Dave)
+#   diff.modified  - [(old_row, new_row), ...] (Alice: 85→90)
+#   diff.removed   - deleted rows (Carol)
+```
+
+### More examples
+
+Run the interactive demo script:
+```bash
+julia --project demo.jl
+```
+
+This demonstrates parsing, validation, type checking, and programmatic usage without spawning an editor.
 
 ## Development and testing
 
