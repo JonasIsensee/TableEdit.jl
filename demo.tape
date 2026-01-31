@@ -54,7 +54,7 @@ Type "4"
 Sleep 300ms
 Tab
 Sleep 300ms
-Type "Dave  "
+Type "Dave"
 Sleep 300ms
 Tab
 Sleep 300ms
@@ -67,11 +67,6 @@ Ctrl+X
 Sleep 500ms
 Type "y"
 Sleep 500ms
-Enter
-Sleep 1s
-
-# Back in REPL - show results
-Type "ok"
 Enter
 Sleep 1s
 
