@@ -1,0 +1,12 @@
+name = "TableEdit"
+uuid = "6fd26c76-9c3a-4270-bdc3-4821c052fe8b"
+authors = ["TableEdit.jl contributors"]
+version = "0.1.0"
+
+[deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+julia = "1.10"

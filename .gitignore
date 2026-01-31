@@ -1,0 +1,16 @@
+# Julia
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+/Manifest.toml
+/docs/site/
+/docs/build/
+
+# IDE / OS
+.DS_Store
+*.swp
+*~
+
+# Local
+*.tmp
+*.temp

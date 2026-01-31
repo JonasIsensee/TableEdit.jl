@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ['1.10', '1']
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: ${{ matrix.version }}
+
+      - name: Cache Julia packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.julia
+          key: ${{ runner.os }}-julia-${{ matrix.version }}-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-julia-${{ matrix.version }}-
+
+      - name: Install dependencies
+        run: julia --project -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Run tests
+        run: julia --project -e 'using Pkg; Pkg.test()'
