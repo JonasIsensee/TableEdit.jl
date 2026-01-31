@@ -19,7 +19,7 @@ Pkg.add(url="https://github.com/JonasIsensee/TableEdit.jl")
 - **`finish_edit(path; ...)`** — Parse the file, run validators, return `(ok, result, errors)`.
 - **`edit_table(table; spawn_editor=true, ...)`** — Prepare → (optionally) run the editor → finish. If `spawn_editor=false`, returns `(path, finish_callback)` so tests can modify the file and call the callback.
 
-**Table input**: Any [Tables.jl](https://github.com/JuliaData/Tables.jl) table (e.g. `(id=[1,2], name=["A","B"])`), a `(columns, rows)` tuple, or a vector of NamedTuples. Tables.jl is the primary interface; the others are supported via dispatch.
+**Table input**: Any [Tables.jl](https://github.com/JuliaData/Tables.jl) table (e.g. `(id=[1,2], name=["A","B"])`), a `(columns, rows)` tuple, or a vector of NamedTuples.
 
 ## Format
 
@@ -29,7 +29,7 @@ Pkg.add(url="https://github.com/JonasIsensee/TableEdit.jl")
 - **Quoting**: Fields that contain the delimiter, newline, or quote character are written in double quotes; internal `"` are doubled (`""` → one `"`). The parser respects the same rules.
 - **Empty fields**: leave cell empty, or use `""` inside quoted fields. Footer documents this.
 
-## Parser behavior (custom implementation)
+## Parser behavior
 
 - **Logical lines**: Newline ends a line only when outside a quoted field. Newlines inside quoted fields are preserved.
 - **Escaped quotes**: Inside a quoted field, `""` is one literal `"`.
@@ -70,7 +70,7 @@ edit_table(table)
 id	name	score
 ---	----	-----
 1	Alice	85
-2	Bob	92
+2	Bob  	92
 3	Carol	78
 ```
 
@@ -81,7 +81,7 @@ id	name	score
 id	name	score
 ---	----	-----
 1	Alice	90      # Changed score from 85 to 90
-2	Bob	92
+2	Bob	    92
 3	Carol	78
 4	Dave	88      # Added new row
 # Removed Carol's row above, added Dave
@@ -110,22 +110,3 @@ ok, diff, errs = edit_table(
 #   diff.modified  - [(old_row, new_row), ...] (Alice: 85→90)
 #   diff.removed   - deleted rows (Carol)
 ```
-
-### More examples
-
-Run the interactive demo script:
-```bash
-julia --project demo.jl
-```
-
-This demonstrates parsing, validation, type checking, and programmatic usage without spawning an editor.
-
-## Development and testing
-
-Clone the repo, then from the package directory:
-
-```bash
-julia --project -e 'using Pkg; Pkg.instantiate(); Pkg.test()'
-```
-
-The test suite includes reliability/adversarial cases: empty input, comment-only, comment prefix inside quoted fields, empty quoted fields, consecutive delimiters, newlines and CRLF inside quotes, escaped quotes, wrong column counts, quoted header names, and round-trips with tricky values.
