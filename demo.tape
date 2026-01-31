@@ -1,41 +1,46 @@
-# VHS script for TableEdit.jl demo
-# Generate with: vhs demo.tape
+# VHS script for TableEdit.jl demo - shows actual REPL workflow
 
 Output demo.gif
 
 Set FontSize 18
-Set Width 1600
-Set Height 1000
+Set Width 900
+Set Height 600
 Set Theme "Dracula"
-Set TypingSpeed 80ms
+Set TypingSpeed 40ms
 
-Type "EDITOR=nano julia --project demo_interactive.jl"
+# Start Julia REPL
+Type "julia --project"
 Enter
-Sleep 6s
+Sleep 1s
 
-# Now in nano. File shows:
-# Line 1: idnamescore
-# Line 2: -----------
-# Line 3: 1Alice85
-# Line 4: 2Bob  92
-# Line 5: 3Carol78
+# Load TableEdit
+Type "using TableEdit"
+Enter
+Sleep 1s
 
-# Navigate to Alice's row (line 3)
+# Create a sample table
+Type 'table = (id=[1,2,3], name=["Alice","Bob","Carol"], score=[85,92,78])'
+Enter
+Sleep 1s
+
+# Call edit_table - this will open nano
+Type "ok, result, errors = edit_table(table)"
+Enter
+Sleep 3s
+
+# Now in nano editing the table
+# Navigate to Alice's score and change 85 -> 90
 Down 2
 Sleep 300ms
-
-# Go to end of line and edit score
 Ctrl+E
 Sleep 300ms
 Backspace 2
 Type "90"
 Sleep 1500ms
 
-# Navigate to Carol's row (line 5)
+# Delete Carol's row
 Down 2
 Sleep 300ms
-
-# Delete Carol's entire row
 Ctrl+K
 Sleep 1500ms
 
@@ -48,10 +53,19 @@ Tab
 Type "88"
 Sleep 1500ms
 
-# Save and exit
+# Save and exit nano
 Ctrl+X
 Sleep 500ms
 Type "y"
 Sleep 500ms
 Enter
-Sleep 5s
+Sleep 2s
+
+# Back in REPL - show results
+Type "ok"
+Enter
+Sleep 1s
+
+Type "rows = result[2]"
+Enter
+Sleep 3s
