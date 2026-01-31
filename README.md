@@ -8,10 +8,8 @@ From the Julia REPL:
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/YOUR_USERNAME/TableEdit.jl")
+Pkg.add(url="https://github.com/JonasIsensee/TableEdit.jl")
 ```
-
-Replace `YOUR_USERNAME` with your GitHub username (or org) after you create the repo.
 
 ## Usage
 
@@ -49,6 +47,66 @@ Replace `YOUR_USERNAME` with your GitHub username (or org) after you create the 
 - `column_types` — `Dict(col => Type)`; parse and validate (e.g. `Int`, `Float64`, `Bool`).
 - `return_mode` — `:full` (default) → `(columns, rows)`; `:diff` → `TableDiff`; `:changes_only` → `(added, modified_new_rows)`. For `:diff` / `:changes_only` you must pass `original_table` and `key_columns`.
 
+## Demo
+
+Run the interactive demo to see all features in action:
+
+```bash
+julia --project demo.jl
+```
+
+Or copy-paste this quick example:
+
+```julia
+using TableEdit
+
+# Create a sample table
+cols = ["id", "name", "email"]
+rows = [
+    (id = "1", name = "Alice", email = "alice@example.com"),
+    (id = "2", name = "Bob", email = "bob@example.com"),
+    (id = "3", name = "Carol", email = "carol@example.com"),
+]
+table = (cols, rows)
+
+# Write to buffer (with header comments)
+io = IOBuffer()
+write_table_text(
+    io,
+    table;
+    header_comment_lines = ["Edit the table below. Lines starting with # are ignored.", ""],
+)
+println(String(take!(io)))
+
+# Parse from string or file
+cols_parsed, rows_parsed, errs = parse_table_text(path_or_string)
+@assert isempty(errs)
+
+# Validation: required columns, unique keys, type checking
+ok, result, errs = finish_edit(
+    path;
+    required_columns = ["id", "name"],
+    key_columns = ["id"],  # must be unique
+    column_types = Dict("id" => Int),
+)
+
+# Diff mode: see what changed
+ok, diff, _ = finish_edit(
+    path;
+    original_table = orig,
+    key_columns = ["id"],
+    return_mode = :diff,  # or :changes_only
+)
+println("Added: ", length(diff.added))
+println("Modified: ", length(diff.modified))
+println("Removed: ", length(diff.removed))
+
+# Simulate editor interaction
+path_edit, finish_fn = edit_table(table; spawn_editor = false)
+write(path_edit, "id,name,email\n1,Alice,new@example.com\n")
+ok, result, errs = finish_fn()
+```
+
 ## Development and testing
 
 Clone the repo, then from the package directory:
@@ -58,19 +116,3 @@ julia --project -e 'using Pkg; Pkg.instantiate(); Pkg.test()'
 ```
 
 The test suite includes reliability/adversarial cases: empty input, comment-only, comment prefix inside quoted fields, empty quoted fields, consecutive delimiters, newlines and CRLF inside quotes, escaped quotes, wrong column counts, quoted header names, and round-trips with tricky values.
-
-## Publishing this package to GitHub
-
-1. Create a new repository on GitHub named `TableEdit.jl` (no need to add a README or .gitignore).
-2. From the `TableEdit.jl` package directory, run:
-
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/TableEdit.jl.git
-   git push -u origin main
-   ```
-
-3. In the README, replace `YOUR_USERNAME` in the install URL with your GitHub username or org.
