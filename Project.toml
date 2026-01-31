@@ -1,6 +1,6 @@
 name = "TableEdit"
 uuid = "6fd26c76-9c3a-4270-bdc3-4821c052fe8b"
-authors = ["TableEdit.jl contributors"]
+authors = ["Jonas Isensee <jonas.isensee@web.de>"]
 version = "0.1.0"
 
 [deps]
