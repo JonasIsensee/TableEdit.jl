@@ -2,16 +2,16 @@
 
 Edit tabular data in an external editor (e.g. `EDITOR`), similar to `git rebase -i`: dump a table to a delimited text file, then parse the edited file with validation and optional diff.
 
+![TableEdit.jl Demo](demo.gif)
+
 ## Install
 
 From the Julia REPL:
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/YOUR_USERNAME/TableEdit.jl")
+Pkg.add(url="https://github.com/JonasIsensee/TableEdit.jl")
 ```
-
-Replace `YOUR_USERNAME` with your GitHub username (or org) after you create the repo.
 
 ## Usage
 
@@ -49,6 +49,77 @@ Replace `YOUR_USERNAME` with your GitHub username (or org) after you create the 
 - `column_types` — `Dict(col => Type)`; parse and validate (e.g. `Int`, `Float64`, `Bool`).
 - `return_mode` — `:full` (default) → `(columns, rows)`; `:diff` → `TableDiff`; `:changes_only` → `(added, modified_new_rows)`. For `:diff` / `:changes_only` you must pass `original_table` and `key_columns`.
 
+## Demo
+
+### Quick example: Interactive editing workflow
+
+```julia
+using TableEdit
+
+# Start with a table (any Tables.jl compatible format)
+table = (id=[1,2,3], name=["Alice","Bob","Carol"], score=[85,92,78])
+
+# Open in editor - this creates a formatted text file and opens $EDITOR
+edit_table(table)
+```
+
+**What you see in your editor:**
+```
+# Empty fields can be left blank or use "". Lines starting with # are ignored.
+
+id	name	score
+---	----	-----
+1	Alice	85
+2	Bob	92
+3	Carol	78
+```
+
+**Make your edits:**
+```
+# Empty fields can be left blank or use "". Lines starting with # are ignored.
+
+id	name	score
+---	----	-----
+1	Alice	90      # Changed score from 85 to 90
+2	Bob	92
+3	Carol	78
+4	Dave	88      # Added new row
+# Removed Carol's row above, added Dave
+```
+
+**After saving and closing the editor:**
+```julia
+# Returns: (ok, result, errors)
+# ok = true
+# result = (["id","name","score"], [(id="1",name="Alice",score="90"), ...])
+```
+
+### Advanced: Validation and diff tracking
+
+```julia
+# Track changes with validation
+ok, diff, errs = edit_table(
+    original_table,
+    key_columns = ["id"],           # IDs must be unique
+    column_types = Dict("score" => Int),  # Score must be an integer
+    return_mode = :diff             # Get structured diff
+)
+
+# diff contains:
+#   diff.added     - new rows (Dave)
+#   diff.modified  - [(old_row, new_row), ...] (Alice: 85→90)
+#   diff.removed   - deleted rows (Carol)
+```
+
+### More examples
+
+Run the interactive demo script:
+```bash
+julia --project demo.jl
+```
+
+This demonstrates parsing, validation, type checking, and programmatic usage without spawning an editor.
+
 ## Development and testing
 
 Clone the repo, then from the package directory:
@@ -58,19 +129,3 @@ julia --project -e 'using Pkg; Pkg.instantiate(); Pkg.test()'
 ```
 
 The test suite includes reliability/adversarial cases: empty input, comment-only, comment prefix inside quoted fields, empty quoted fields, consecutive delimiters, newlines and CRLF inside quotes, escaped quotes, wrong column counts, quoted header names, and round-trips with tricky values.
-
-## Publishing this package to GitHub
-
-1. Create a new repository on GitHub named `TableEdit.jl` (no need to add a README or .gitignore).
-2. From the `TableEdit.jl` package directory, run:
-
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/TableEdit.jl.git
-   git push -u origin main
-   ```
-
-3. In the README, replace `YOUR_USERNAME` in the install URL with your GitHub username or org.
